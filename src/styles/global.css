@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@property --aura-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 30%;
+}
+
+@property --aura-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 20%;
+}
+
 @import "@fontsource/newsreader/400.css";
 @import "@fontsource/newsreader/500.css";
 @import "@fontsource/newsreader/600.css";
@@ -64,26 +76,35 @@
     }
   }
 
-  /* Ambient dot-grid backdrop — monochrome, ~inaudible, hero only. */
-  .grid-backdrop {
+  /* Ambient gray gradient backdrop — drifts idly, follows the cursor on hover. Hero only. */
+  .aura-backdrop {
     position: absolute;
-    inset: -20% -10%;
+    inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle, var(--color-line) 1.2px, transparent 1.2px);
-    background-size: 28px 28px;
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
-    animation: grid-drift 40s linear infinite;
+    transition: --aura-x 500ms ease, --aura-y 500ms ease;
+    background-image:
+      radial-gradient(560px circle at var(--aura-x) var(--aura-y), rgba(47, 52, 55, 0.10), transparent 65%),
+      radial-gradient(480px circle at calc(100% - var(--aura-x)) calc(100% - var(--aura-y)), rgba(120, 119, 116, 0.14), transparent 60%);
+    animation: aura-drift 16s ease-in-out infinite alternate;
   }
 
-  @keyframes grid-drift {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-28px, -28px, 0); }
+  .aura-backdrop.is-hovering {
+    animation: none;
+    transition: --aura-x 120ms linear, --aura-y 120ms linear;
+  }
+
+  @keyframes aura-drift {
+    0% { --aura-x: 22%; --aura-y: 18%; }
+    50% { --aura-x: 78%; --aura-y: 44%; }
+    100% { --aura-x: 40%; --aura-y: 70%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .grid-backdrop { animation: none; }
+    .aura-backdrop {
+      animation: none;
+      transition: none;
+    }
   }
 
   /* Word-by-word hover lift for headlines. Spans are pre-split at build time. */

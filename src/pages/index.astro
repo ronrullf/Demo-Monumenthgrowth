@@ -18,7 +18,7 @@ const howItWorks = [
 
 <Base>
   <header data-hero class="relative mx-auto max-w-5xl overflow-hidden px-5 pb-10 pt-12 sm:pb-14 sm:pt-16 md:pb-20 md:pt-20">
-    <div class="grid-backdrop"></div>
+    <div class="aura-backdrop" data-aura></div>
 
     <div class="relative z-10 mx-auto max-w-2xl text-center">
       <h1 class="word-hover text-3xl sm:text-4xl md:text-5xl">
@@ -35,6 +35,26 @@ const howItWorks = [
       </div>
     </div>
   </header>
+
+  <script>
+    const hero = document.querySelector<HTMLElement>("[data-hero]");
+    const aura = hero?.querySelector<HTMLElement>("[data-aura]");
+    if (hero && aura) {
+      hero.addEventListener("pointerenter", () => aura.classList.add("is-hovering"));
+      hero.addEventListener("pointermove", (e) => {
+        const rect = hero.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        aura.style.setProperty("--aura-x", `${x}%`);
+        aura.style.setProperty("--aura-y", `${y}%`);
+      });
+      hero.addEventListener("pointerleave", () => {
+        aura.classList.remove("is-hovering");
+        aura.style.removeProperty("--aura-x");
+        aura.style.removeProperty("--aura-y");
+      });
+    }
+  </script>
 
   <div class="mx-auto max-w-5xl px-5 pb-12 md:pb-16">
     <div class="grid grid-cols-2 divide-x divide-y divide-(--color-line) rounded-xl border border-(--color-line) bg-(--color-surface) sm:grid-cols-4 sm:divide-y-0">
