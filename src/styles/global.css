@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@import "@fontsource/newsreader/400.css";
+@import "@fontsource/newsreader/500.css";
+@import "@fontsource/newsreader/600.css";
+@import "@fontsource-variable/geist";
+
+@theme {
+  --color-canvas: #FBFBFA;      /* warm bone background */
+  --color-surface: #FFFFFF;     /* cards */
+  --color-ink: #1A1A1A;         /* headings, near-black not #000 */
+  --color-body: #2F3437;        /* body text */
+  --color-muted: #787774;       /* secondary text */
+  --color-line: #EAEAEA;        /* all borders/dividers */
+  --color-wa: #25D366;          /* WhatsApp green — CTA only */
+  --color-wa-ink: #0B3D2E;      /* text/darker green on hover */
+  --color-gold: #B08D57;        /* logo accent, used sparingly (eyebrow labels) */
+
+  --font-serif: "Newsreader", Georgia, serif;                    /* hero + section headings */
+  --font-sans: "Geist Variable", "Helvetica Neue", sans-serif;   /* body, UI, buttons */
+}
+
+@layer base {
+  html {
+    background: var(--color-canvas);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    color: var(--color-ink);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer utilities {
+  .reveal,
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.is-visible,
+  .reveal-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Ambient dot-grid backdrop — monochrome, ~inaudible, hero only. */
+  .grid-backdrop {
+    position: absolute;
+    inset: -20% -10%;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, var(--color-line) 1.2px, transparent 1.2px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+    animation: grid-drift 40s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-28px, -28px, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grid-backdrop { animation: none; }
+  }
+
+  /* Word-by-word hover lift for headlines. Spans are pre-split at build time. */
+  .word-hover .word {
+    display: inline-block;
+    white-space: pre;
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), color 300ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .word-hover .word:hover {
+      transform: translateY(-0.06em);
+      color: var(--color-wa-ink);
+    }
+  }
+
+  /* Animated underline reveal for inline text links. */
+  .link-underline {
+    position: relative;
+    text-decoration: none;
+    padding-bottom: 1px;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0.4);
+    transform-origin: left;
+    opacity: 0.4;
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link-underline:hover::after {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  /* One-shot shine sweep on CTA hover. */
+  .cta-shine {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cta-shine:hover::after {
+      animation: cta-shine-sweep 900ms ease forwards;
+    }
+  }
+
+  @keyframes cta-shine-sweep {
+    to { transform: translateX(120%); }
+  }
+}

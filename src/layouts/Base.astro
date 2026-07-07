@@ -1,0 +1,121 @@
+---
+import "../styles/global.css";
+import Icon from "../components/Icon.astro";
+import { site } from "../config/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${site.businessName} — ${site.tagline}`,
+  description = `Custom kitchen and bathroom remodeling in ${site.city}, ${site.state}. Text us a photo, get a real quote back — usually same day.`,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="bg-(--color-canvas) text-(--color-body) antialiased">
+    <slot />
+
+    <div
+      id="lightbox"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 md:p-10"
+      data-lightbox
+      aria-hidden="true"
+      aria-modal="true"
+      role="dialog"
+      aria-label="Enlarged before and after photos"
+    >
+      <button
+        type="button"
+        class="absolute right-4 top-4 rounded-full p-2 text-white/80 transition-colors hover:text-white md:right-6 md:top-6"
+        data-lightbox-close
+        aria-label="Close enlarged view"
+      >
+        <Icon name="x" class="h-7 w-7" />
+      </button>
+      <div class="flex max-h-full w-full max-w-4xl flex-col items-center gap-4">
+        <div class="grid w-full grid-cols-1 gap-2 overflow-hidden rounded-lg sm:grid-cols-2">
+          <figure class="relative">
+            <span class="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium tracking-wide text-white">BEFORE</span>
+            <img data-lightbox-before src="" alt="" class="max-h-[70vh] w-full object-contain" />
+          </figure>
+          <figure class="relative">
+            <span class="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium tracking-wide text-white">AFTER</span>
+            <img data-lightbox-after src="" alt="" class="max-h-[70vh] w-full object-contain" />
+          </figure>
+        </div>
+        <p class="text-center text-sm text-white/70" data-lightbox-label></p>
+      </div>
+    </div>
+
+    <script>
+      const lightbox = document.getElementById("lightbox")!;
+      const closeBtn = lightbox.querySelector<HTMLElement>("[data-lightbox-close]")!;
+      const beforeImg = lightbox.querySelector<HTMLImageElement>("[data-lightbox-before]")!;
+      const afterImg = lightbox.querySelector<HTMLImageElement>("[data-lightbox-after]")!;
+      const labelEl = lightbox.querySelector<HTMLElement>("[data-lightbox-label]")!;
+      let lastFocused: HTMLElement | null = null;
+
+      function openLightbox(detail: { before: string; after: string; label: string }) {
+        beforeImg.src = detail.before;
+        beforeImg.alt = `${detail.label} — before`;
+        afterImg.src = detail.after;
+        afterImg.alt = `${detail.label} — after`;
+        labelEl.textContent = detail.label;
+        lastFocused = document.activeElement as HTMLElement;
+        lightbox.classList.remove("hidden");
+        lightbox.classList.add("flex");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        closeBtn.focus();
+      }
+
+      function closeLightbox() {
+        lightbox.classList.add("hidden");
+        lightbox.classList.remove("flex");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        lastFocused?.focus();
+      }
+
+      window.addEventListener("lightbox:open", (e) => openLightbox((e as CustomEvent).detail));
+      closeBtn.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (lightbox.classList.contains("hidden")) return;
+        if (e.key === "Escape") {
+          closeLightbox();
+          return;
+        }
+        if (e.key === "Tab") {
+          const focusables = lightbox.querySelectorAll<HTMLElement>(
+            'button, [href], [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusables.length === 0) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

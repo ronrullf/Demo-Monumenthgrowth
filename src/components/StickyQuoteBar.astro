@@ -1,0 +1,50 @@
+---
+import Icon from "./Icon.astro";
+import { whatsappHref, telHref } from "../lib/whatsapp";
+import { site } from "../config/site";
+---
+
+<div
+  id="sticky-quote-bar"
+  class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-(--color-line) bg-white/90 px-4 py-3 opacity-0 backdrop-blur transition-[transform,opacity] duration-300 md:inset-x-auto md:right-6 md:bottom-6 md:w-auto md:rounded-full md:border md:px-2 md:py-2 md:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+  data-sticky-bar
+>
+  <div class="mx-auto flex max-w-5xl items-center gap-3 md:mx-0">
+    <a
+      href={whatsappHref()}
+      target="_blank"
+      rel="noopener"
+      class="cta-shine inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-(--color-wa) px-5 py-3 font-sans font-medium text-white transition-[background-color,transform] duration-150 hover:bg-(--color-wa-ink) active:scale-[0.98] md:flex-none md:rounded-full"
+    >
+      <Icon name="whatsapp" class="h-5 w-5 shrink-0" />
+      <span>Get My Same-Day Quote</span>
+    </a>
+    <a
+      href={telHref()}
+      aria-label={`Call ${site.phoneDisplay}`}
+      class="inline-flex shrink-0 items-center justify-center rounded-lg border border-(--color-line) p-3 text-(--color-ink) transition-colors duration-150 hover:bg-(--color-canvas) md:hidden"
+    >
+      <Icon name="phone" class="h-5 w-5" />
+    </a>
+  </div>
+</div>
+
+<script>
+  const bar = document.getElementById("sticky-quote-bar");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  if (bar && hero) {
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          bar.classList.add("translate-y-full", "opacity-0");
+          bar.classList.remove("translate-y-0", "opacity-100");
+        } else {
+          bar.classList.remove("translate-y-full", "opacity-0");
+          bar.classList.add("translate-y-0", "opacity-100");
+        }
+      },
+      { threshold: 0 }
+    );
+    io.observe(hero);
+  }
+</script>

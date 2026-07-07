@@ -1,0 +1,150 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import Icon from "../components/Icon.astro";
+import WhatsappButton from "../components/WhatsappButton.astro";
+import BeforeAfter from "../components/BeforeAfter.astro";
+import StickyQuoteBar from "../components/StickyQuoteBar.astro";
+import { site } from "../config/site";
+import { telHref } from "../lib/whatsapp";
+import { splitWords } from "../lib/text";
+
+const heroPair = site.beforeAfter[0];
+const howItWorks = [
+  { icon: "chat-circle-text" as const, title: "Text us a photo", body: "Send a picture of your kitchen or bath and what you want changed. Takes two minutes." },
+  { icon: "calendar-check" as const, title: "Free in-home quote", body: "We come out, measure, and hand you a real price before we leave — no waiting for callbacks." },
+  { icon: "cooking-pot" as const, title: "Your kitchen, finished", body: "We build it on schedule, clean up daily, and walk you through the finished space." },
+];
+---
+
+<Base>
+  <header data-hero class="relative mx-auto max-w-5xl overflow-hidden px-5 pb-8 pt-8 md:pb-12 md:pt-12">
+    <div class="grid-backdrop"></div>
+
+    <div class="relative z-10 mx-auto max-w-md md:max-w-none">
+      <BeforeAfter
+        before={heroPair.before}
+        after={heroPair.after}
+        label={heroPair.label}
+        priority={true}
+        frameClass="aspect-4/3 max-h-[34vh] sm:max-h-none sm:aspect-video md:aspect-4/3"
+        class="mb-6 md:mb-8"
+      />
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-2xl text-center">
+      <h1 class="word-hover text-3xl sm:text-4xl md:text-5xl">
+        {splitWords(site.heroHeadline).map((word) => <span class="word">{word} </span>)}
+      </h1>
+      <p class="mx-auto mt-4 max-w-xl text-base text-(--color-body) md:text-lg">
+        {site.heroSubheadline}
+      </p>
+      <div class="mt-6 flex flex-col items-center gap-3">
+        <WhatsappButton label="Get My Same-Day Quote" class="w-full sm:w-auto" />
+        <a href={telHref()} class="link-underline text-sm text-(--color-ink)">
+          or call {site.phoneDisplay}
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-5xl px-5 pb-12 md:pb-16">
+    <div class="grid grid-cols-2 divide-x divide-y divide-(--color-line) rounded-xl border border-(--color-line) bg-(--color-surface) sm:grid-cols-4 sm:divide-y-0">
+      <div class="flex flex-col items-center gap-2 p-6 text-center">
+        <Icon name="star" class="h-5 w-5 text-(--color-ink)" />
+        <p class="text-lg font-medium text-(--color-ink)">
+          {site.googleRating}
+          {site.reviewCount !== "-" && <span class="text-(--color-muted)"> ({site.reviewCount})</span>}
+        </p>
+        <p class="text-sm text-(--color-muted)">Google Rating</p>
+      </div>
+      <div class="flex flex-col items-center gap-2 p-6 text-center">
+        <Icon name="cooking-pot" class="h-5 w-5 text-(--color-ink)" />
+        <p class="text-lg font-medium text-(--color-ink)">{site.jobsDone}</p>
+        <p class="text-sm text-(--color-muted)">{site.jobsLabel}</p>
+      </div>
+      {site.licensedInsured && (
+        <div class="flex flex-col items-center gap-2 p-6 text-center">
+          <Icon name="shield-check" class="h-5 w-5 text-(--color-ink)" />
+          <p class="text-lg font-medium text-(--color-ink)">Licensed</p>
+          <p class="text-sm text-(--color-muted)">&amp; Insured</p>
+        </div>
+      )}
+      <div class="flex flex-col items-center gap-2 p-6 text-center">
+        <Icon name="wallet" class="h-5 w-5 text-(--color-ink)" />
+        <p class="text-sm text-(--color-body)">{site.financing}</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <Section ariaLabel="Before and after gallery">
+      <h2 class="word-hover text-center text-3xl md:text-4xl">
+        {splitWords(`Real ${site.city} Kitchens & Baths We've Remodeled`).map((word) => <span class="word">{word} </span>)}
+      </h2>
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {site.beforeAfter.map((pair, i) => (
+          <div class="reveal-item" style={`transition-delay: ${i * 80}ms`}>
+            <BeforeAfter before={pair.before} after={pair.after} label={pair.label} />
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 flex justify-center">
+        <WhatsappButton label="Get a Quote Like These" />
+      </div>
+    </Section>
+
+    <Section ariaLabel="How it works">
+      <h2 class="word-hover text-center text-3xl md:text-4xl">
+        {splitWords("How It Works").map((word) => <span class="word">{word} </span>)}
+      </h2>
+      <ol class="mt-12 grid grid-cols-1 divide-y divide-(--color-line) md:grid-cols-3 md:divide-x md:divide-y-0">
+        {howItWorks.map((step, i) => (
+          <li class="flex flex-col items-center gap-3 px-6 py-8 text-center first:pt-0 md:py-0">
+            <Icon name={step.icon} class="h-7 w-7 text-(--color-ink)" />
+            <p class="text-sm font-medium text-(--color-muted)">Step {i + 1}</p>
+            <h3 class="text-xl">{step.title}</h3>
+            <p class="max-w-xs text-sm text-(--color-body)">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="mt-12 flex justify-center">
+        <WhatsappButton label="Start With Step 1" />
+      </div>
+    </Section>
+
+    <Section ariaLabel="Customer reviews">
+      <h2 class="text-center text-3xl md:text-4xl">What {site.city} Homeowners Say</h2>
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {site.reviews.map((review) => (
+          <figure class="rounded-xl border border-(--color-line) bg-(--color-surface) p-7">
+            <blockquote class="font-serif text-lg leading-snug text-(--color-ink)">
+              "{review.quote}"
+            </blockquote>
+            <figcaption class="mt-4 text-sm text-(--color-muted)">
+              — {review.name}, {review.area}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </Section>
+  </main>
+
+  <StickyQuoteBar />
+
+  <footer aria-label="Contact and service area" class="border-t border-(--color-line) px-5 pb-28 pt-16 text-center md:pb-16">
+    <h2 class="text-2xl">{site.businessName}</h2>
+    <p class="mt-3 text-(--color-body)">
+      Serving {site.city} and all of {site.stateFull}
+    </p>
+    <p class="mt-2 text-(--color-body)">
+      <a href={telHref()} class="link-underline">{site.phoneDisplay}</a> · {site.hours}
+    </p>
+    <div class="mt-6 flex justify-center">
+      <WhatsappButton label="Get My Same-Day Quote" />
+    </div>
+    <p class="mt-8 text-xs text-(--color-muted)">
+      {site.businessName} · Licensed &amp; Insured
+    </p>
+  </footer>
+</Base>

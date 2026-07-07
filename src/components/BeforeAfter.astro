@@ -1,0 +1,169 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  before: string;
+  after: string;
+  label: string;
+  priority?: boolean;
+  class?: string;
+  frameClass?: string;
+}
+
+const {
+  before,
+  after,
+  label,
+  priority = false,
+  class: className = "",
+  frameClass = "aspect-4/3",
+} = Astro.props;
+---
+
+<div
+  class={`before-after group relative overflow-hidden rounded-xl border border-(--color-line) bg-(--color-surface) ${className}`}
+  data-before-after
+  data-before={before}
+  data-after={after}
+  data-label={label}
+>
+  <div class={`relative w-full cursor-zoom-in select-none touch-none ${frameClass}`} data-ba-frame tabindex="0" role="button" aria-label={`Open enlarged before and after view: ${label}`}>
+    <img
+      src={after}
+      alt={`${label} — after`}
+      class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      loading={priority ? "eager" : "lazy"}
+      fetchpriority={priority ? "high" : "auto"}
+      width="1200"
+      height="900"
+    />
+    <div class="pointer-events-none absolute inset-0 h-full w-full overflow-hidden" style="clip-path: inset(0 50% 0 0);" data-ba-clip>
+      <img
+        src={before}
+        alt={`${label} — before`}
+        class="absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
+        width="1200"
+        height="900"
+      />
+    </div>
+
+    <span class="pointer-events-none absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium tracking-wide text-white">BEFORE</span>
+    <span class="pointer-events-none absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium tracking-wide text-white">AFTER</span>
+
+    <div
+      class="absolute inset-y-0 z-10 flex w-9 -translate-x-1/2 cursor-ew-resize touch-none items-center justify-center"
+      style="left: 50%;"
+      data-ba-handle
+      role="slider"
+      tabindex="0"
+      aria-label={`Drag to compare before and after: ${label}`}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="50"
+      aria-orientation="horizontal"
+    >
+      <div class="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-white/90"></div>
+      <div class="relative flex h-9 w-9 items-center justify-center rounded-full bg-white ring-1 ring-black/5" style="box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+        <Icon name="arrows-out" class="h-4 w-4 text-(--color-ink)" />
+      </div>
+    </div>
+  </div>
+  {label && (
+    <p class="px-1 pb-1 pt-3 text-sm text-(--color-muted)">{label}</p>
+  )}
+</div>
+
+<script>
+  function clamp(n: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, n));
+  }
+
+  function initBeforeAfter(root: HTMLElement) {
+    const frame = root.querySelector<HTMLElement>("[data-ba-frame]");
+    const clip = root.querySelector<HTMLElement>("[data-ba-clip]");
+    const handle = root.querySelector<HTMLElement>("[data-ba-handle]");
+    if (!frame || !clip || !handle) return;
+
+    let dragging = false;
+    let moved = false;
+
+    function setPosition(pct: number) {
+      const clamped = clamp(pct, 0, 100);
+      clip!.style.clipPath = `inset(0 ${100 - clamped}% 0 0)`;
+      handle!.style.left = `${clamped}%`;
+      handle!.setAttribute("aria-valuenow", String(Math.round(clamped)));
+    }
+
+    function pctFromClientX(clientX: number) {
+      const rect = frame!.getBoundingClientRect();
+      return ((clientX - rect.left) / rect.width) * 100;
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (!dragging) return;
+      moved = true;
+      setPosition(pctFromClientX(e.clientX));
+    }
+
+    function onPointerUp() {
+      dragging = false;
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    }
+
+    handle.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      moved = false;
+      e.stopPropagation();
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
+    });
+
+    handle.addEventListener("keydown", (e) => {
+      const current = Number(handle.getAttribute("aria-valuenow") ?? "50");
+      if (e.key === "ArrowLeft") {
+        setPosition(current - 5);
+        e.preventDefault();
+      } else if (e.key === "ArrowRight") {
+        setPosition(current + 5);
+        e.preventDefault();
+      } else if (e.key === "Home") {
+        setPosition(0);
+        e.preventDefault();
+      } else if (e.key === "End") {
+        setPosition(100);
+        e.preventDefault();
+      }
+    });
+
+    function openLightbox() {
+      window.dispatchEvent(
+        new CustomEvent("lightbox:open", {
+          detail: {
+            before: root.dataset.before,
+            after: root.dataset.after,
+            label: root.dataset.label,
+          },
+        })
+      );
+    }
+
+    frame.addEventListener("click", () => {
+      if (moved) {
+        moved = false;
+        return;
+      }
+      openLightbox();
+    });
+
+    frame.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openLightbox();
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-before-after]").forEach(initBeforeAfter);
+</script>
