@@ -9,7 +9,6 @@ import { site } from "../config/site";
 import { telHref } from "../lib/whatsapp";
 import { splitWords } from "../lib/text";
 
-const heroPair = site.beforeAfter[0];
 const howItWorks = [
   { icon: "chat-circle-text" as const, title: "Text us a photo", body: "Send a picture of your kitchen or bath and what you want changed. Takes two minutes." },
   { icon: "calendar-check" as const, title: "Free in-home quote", body: "We come out, measure, and hand you a real price before we leave — no waiting for callbacks." },
@@ -18,19 +17,8 @@ const howItWorks = [
 ---
 
 <Base>
-  <header data-hero class="relative mx-auto max-w-5xl overflow-hidden px-5 pb-8 pt-8 md:pb-12 md:pt-12">
+  <header data-hero class="relative mx-auto max-w-5xl overflow-hidden px-5 pb-10 pt-12 sm:pb-14 sm:pt-16 md:pb-20 md:pt-20">
     <div class="grid-backdrop"></div>
-
-    <div class="relative z-10 mx-auto max-w-md md:max-w-none">
-      <BeforeAfter
-        before={heroPair.before}
-        after={heroPair.after}
-        label={heroPair.label}
-        priority={true}
-        frameClass="aspect-4/3 max-h-[34vh] sm:max-h-none sm:aspect-video md:aspect-4/3"
-        class="mb-6 md:mb-8"
-      />
-    </div>
 
     <div class="relative z-10 mx-auto max-w-2xl text-center">
       <h1 class="word-hover text-3xl sm:text-4xl md:text-5xl">
@@ -78,22 +66,6 @@ const howItWorks = [
   </div>
 
   <main>
-    <Section ariaLabel="Before and after gallery">
-      <h2 class="word-hover text-center text-3xl md:text-4xl">
-        {splitWords(`Real ${site.city} Kitchens & Baths We've Remodeled`).map((word) => <span class="word">{word} </span>)}
-      </h2>
-      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-        {site.beforeAfter.map((pair, i) => (
-          <div class="reveal-item" style={`transition-delay: ${i * 80}ms`}>
-            <BeforeAfter before={pair.before} after={pair.after} label={pair.label} />
-          </div>
-        ))}
-      </div>
-      <div class="mt-10 flex justify-center">
-        <WhatsappButton label="Get a Quote Like These" />
-      </div>
-    </Section>
-
     <Section ariaLabel="How it works">
       <h2 class="word-hover text-center text-3xl md:text-4xl">
         {splitWords("How It Works").map((word) => <span class="word">{word} </span>)}
@@ -110,6 +82,22 @@ const howItWorks = [
       </ol>
       <div class="mt-12 flex justify-center">
         <WhatsappButton label="Start With Step 1" />
+      </div>
+    </Section>
+
+    <Section ariaLabel="Before and after gallery">
+      <h2 class="word-hover text-center text-3xl md:text-4xl">
+        {splitWords(`Real ${site.city} Kitchens & Baths We've Remodeled`).map((word) => <span class="word">{word} </span>)}
+      </h2>
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {site.beforeAfter.map((pair, i) => (
+          <div class="reveal-item" style={`transition-delay: ${i * 80}ms`}>
+            <BeforeAfter before={pair.before} after={pair.after} label={pair.label} />
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 flex justify-center">
+        <WhatsappButton label="Get a Quote Like These" />
       </div>
     </Section>
 
